@@ -1,0 +1,51 @@
+{
+  "skill": "humanizer-zh",
+  "result": "PASS",
+  "reviewed_scopes": [
+    "任务名称",
+    "任务概要",
+    "任务prompt",
+    "关键动作",
+    "评分表",
+    "环境依赖",
+    "软件步骤",
+    "输入材料中的自然语言",
+    "Reference中的用户可见文字",
+    "关键标准答案工作簿全部自然语言",
+    "任务规格工作簿全部自然语言"
+  ],
+  "scores": {
+    "直接性": 9,
+    "节奏": 9,
+    "信任度": 10,
+    "真实性": 9,
+    "精炼度": 9,
+    "total": 46
+  },
+  "minimum_total": 45,
+  "notes": [
+    "标题改为内容曝光归因月结，保留原有曝光归因业务，不再堆叠窗口、路径、租户隔离和审计等概念。",
+    "Prompt从月结岗位需要进入，四段分别交代业务问题、材料来源、归因处理和结果消费者，长短有变化，没有固定事件答案或判卷口吻。",
+    "事件数量、固定事件ID、固定汇总行数和命名不变量均不写进题面，具体结果由输入材料与PostgreSQL查询产生。",
+    "RLS要求同时绑定session_user与current_user，避免仅靠可自行设置的tenant_id造成越权，没有把自定义设置写成可信身份。",
+    "Reference只含SQL、归因明细、拒绝清单、路径汇总、访问摘要、月结摘要和目录说明，没有生成器、测试器、QA文件或固定PASS。",
+    "人工复读未发现宣传腔、否定式排比、模糊权威、伪引用、无来源数字、软件能力幻觉或推理断裂。"
+  ],
+  "reviewed_artifacts_sha256": {
+    "任务名称.txt": "9b01cbf8006c02c190b7e0193d85cd9be92d415f07e6519f42aab51973fe10ae",
+    "任务概要.txt": "0058df394102c80971410fe3fde1b4e5fc1a8d760f30c7893c0b034f569bf9ae",
+    "任务prompt.txt": "4b32c8710f8cd105fc7a1107471b23569c1d12129dc086324178b30c240be8e8",
+    "关键动作.txt": "5b9f15325da8b9bdf10fe7d9cf67ab86e0239c72cc1011b0d765ce259d741e78",
+    "评分表.txt": "86ce6fd8cb18132518421740f5afcdd73e929a1a7ac128655f7fc689aaccd57d",
+    "环境依赖.txt": "90bfced0c082205b73c3586f1c0f02912b723a4681d6a254d98161a64ed564a6",
+    "相关专业软件的关键步骤.txt": "d6e77fd085fff56d712a7818505a89b0d8e52736457a9289b590c9889b9b7abe",
+    "task_fields.json": "4a2ecd8485fd1944bbead12fdc5fe0668f792bbf4e8f901498ae99067f1fc88a",
+    "输入数据包.zip": "5c2cf205a7011ac560dd6e17763cd2c153edc95bb9208fb820bd50f6a062b4f1",
+    "reference.zip": "9888b4aed12097358f15aca2912d58df5e5e229c5a545bf3e60cab1b98c1978c",
+    "关键标准答案.xlsx": "33183ce485e96e701c5b9edc95b4bed32510d2edc03cd70b58cc9c1767007897",
+    "任务规格转化.xlsx": "4ee02417ee80c3f642201051429dadc04261f483356197429c7827e6f89584fa",
+    "ALE-专家数据作业表_q3009.csv": "b7edc7d25378abaa6a036812ea72b5304b14c973fe4688e57a5a0995eb72787c"
+  },
+  "online_ai_field_used_as_conclusion": false,
+  "reviewed_on": "2026-08-13"
+}
