@@ -28,7 +28,7 @@ CSV_KEYS = {
 
 
 def run(command: list[str], stdin: str | None = None) -> subprocess.CompletedProcess[str]:
-    completed = subprocess.run(command, input=stdin, text=True, capture_output=True, timeout=300)
+    completed = subprocess.run(command, input=stdin, text=True, encoding="utf-8", capture_output=True, timeout=300)
     if completed.returncode:
         raise RuntimeError(completed.stdout + completed.stderr)
     return completed
