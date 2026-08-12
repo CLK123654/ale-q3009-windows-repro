@@ -1,1 +1,3 @@
 # 内容曝光归因月结
+
+本仓库保存一道PostgreSQL Client业务任务。题面与四个附件位于task目录，implementation目录保存生成Reference所用的业务实现，Windows工作流在PostgreSQL17中执行。

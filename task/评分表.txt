@@ -1,0 +1,97 @@
+总分100分。
+
+1. 月结材料与数据库结构
+分值：12分
+标准答案： 七项输入材料均被消费，数据库包含租户、实验分配、授权快照、原始事件及三张结果表。
+关键字段： tenant_id、allocation_id、event_id、surface_path、payload_json。
+容差： CSV行序和SQL文件拆分可以变化，业务键、数据类型和输入内容不能变化。
+失败边界： 主要输入未使用，源表缺失，或payload_json未按JSONB保存时本项失败。
+可观察证据： sql目录、数据库对象定义、review-summary.json和四份结果CSV。
+客观硬性标准： ltree与btree_gist扩展可用，四张源表和三张结果表结构完整。
+阈值： 所有输入文件均有明确消费者，规定数据库对象无缺失。
+优先级：Gate项
+所属层级： L3输入数据导入与完整性层。
+
+2. 路径、时段与分桶边界
+分值：16分
+标准答案： surface_path按ltree后代关系匹配experiment_path，实验时段、授权时段和bucket均为左闭右开区间。
+关键字段： experiment_path、surface_path、active_window、consent_window、bucket_window。
+容差： 可使用等价索引和查询组织，区间方向与边界含义不能变化。
+失败边界： 祖先与后代方向相反，右边界被纳入，或非整数bucket引发整批转换失败时本项失败。
+可观察证据： schema.sql、attribution.sql、attributed_exposure.csv和rejected_exposure.csv。
+客观硬性标准： 归因行均同时满足路径、实验时段、授权时段和分桶条件。
+阈值： 任一归因行违反上述条件即失败。
+优先级：高权重项
+所属层级： L6领域计算与专业规则层。
+
+3. 唯一归因选择
+分值：16分
+标准答案： 每条成功事件只保留一个分配，多候选依次按路径深度降序、priority降序和allocation_id升序处理。
+关键字段： event_id、allocation_id、experiment_path、priority。
+容差： SQL可采用窗口函数或等价关系查询，排序规则必须相同。
+失败边界： 同一event_id出现多个归因结果，或排序规则改变唯一归属时本项失败。
+可观察证据： attribution.sql和attributed_exposure.csv。
+客观硬性标准： attributed_exposure.csv中event_id唯一，allocation_id能回连输入分配。
+阈值： 重复归因数必须为0。
+优先级：高权重项
+所属层级： L6领域计算与专业规则层。
+
+4. 未归因事件分流
+分值：14分
+标准答案： 未进入归因明细的事件依次判断tenant_disabled、malformed_payload、consent_denied、path_unmatched、outside_window和bucket_unmatched。
+关键字段： event_id、tenant_id、reject_reason、detail。
+容差： detail措辞可以变化，reject_reason和优先级不能变化。
+失败边界： 源事件同时出现在归因与拒绝结果，或未归因事件没有明确原因时本项失败。
+可观察证据： rejected_exposure.csv、attributed_exposure.csv和attribution.sql。
+客观硬性标准： 两份明细按event_id互斥，合并后覆盖全部源事件。
+阈值： 重复数和遗漏数均为0。
+优先级：高权重项
+所属层级： L4数据清洗与质量控制层。
+
+5. 路径变体汇总
+分值：11分
+标准答案： 按tenant_id、experiment_path和variant汇总曝光量与去重用户数。
+关键字段： tenant_id、experiment_path、variant、exposure_count、distinct_users。
+容差： CSV行序可以变化，分组键和聚合口径不能变化。
+失败边界： 汇总行无法从归因明细复算，或distinct_users未按用户标识去重时本项失败。
+可观察证据： path_variant_rollup.csv和attributed_exposure.csv。
+客观硬性标准： 每个汇总键的两个指标都等于归因明细重新聚合的结果。
+阈值： 所有汇总键差异均为0。
+优先级：高权重项
+所属层级： L9跨产物一致性与可追溯层。
+
+6. 租户访问边界
+分值：15分
+标准答案： tenant_video_ro与tenant_shop_ro同时受固定数据库身份和对应tenant_id设置约束，platform_auditor可读取全部归因行。
+关键字段： session_user、current_user、tenant_setting、visible_rows、visible_tenants。
+容差： 角色创建方式可以调整，三类职责与策略边界不能改变。
+失败边界： 租户角色仅凭自定义设置即可读取其他租户，或数据库身份与当前角色不一致时仍能读取数据，本项失败。
+可观察证据： rls.sql和tenant_access_summary.csv。
+客观硬性标准： 两个租户角色只出现对应租户，平台审计角色覆盖归因结果中的全部租户。
+阈值： 租户角色跨租户可见行数必须为0。
+优先级：Gate项
+所属层级： L8运行验证与可执行行为层。
+
+7. 月结范围与岗位衔接
+分值：8分
+标准答案： 月结摘要保留statement_period、cutoff_at_utc、attribution_owner、access_review_owner和downstream_consumer。
+关键字段： statement_period、cutoff_at_utc、attribution_owner、access_review_owner、downstream_consumer。
+容差： README段落和JSON键序可以变化，字段值必须来自handoff_request.json。
+失败边界： 月结范围、截止时间或结果接收人缺失时本项失败。
+可观察证据： review-summary.json、README.md和handoff_request.json。
+客观硬性标准： 结构化摘要与月结请求逐字段一致，说明材料中的岗位分工没有冲突。
+阈值： 五个字段必须全部存在且值一致。
+优先级：普通项
+所属层级： L1任务指令遵循层。
+
+8. 交付物完整性
+分值：8分
+标准答案： 完整交付可以读取，包含三份SQL、四份结果CSV、月结摘要和目录说明。
+关键字段： sql、results、review-summary.json、README.md。
+容差： 文件内部排序和说明措辞可以变化，结果Schema与业务含义不能变化。
+失败边界： 核心文件缺失、CSV不可解析、SQL无法建立要求的业务对象，或说明与实际文件不符时本项失败。
+可观察证据： 交付目录、三份SQL、四份CSV、JSON摘要和README。
+客观硬性标准： 每个交付文件都能打开，结构化文件字段齐全，文件间业务键可追溯。
+阈值： 核心交付缺失数必须为0。
+优先级：Gate项
+所属层级： L7产物结构与专业对象层。
